@@ -1,132 +1,97 @@
-create database cmpe273;
+CREATE DATABASE cmpe273;
 
-use cmpe273;
+USE cmpe273;
 
-create table files
-(
-	filename varchar(255) not null,
-	filepath varchar(500) not null
-		primary key,
-	fileparent varchar(500) null,
-	isfile varchar(1) null,
-	starred varchar(1) null,
-	owner varchar(255) null,
-	sharedcount int null
-)
-;
+-- Creating table: files
+CREATE TABLE files (
+    filename VARCHAR(255) NOT NULL,
+    filepath VARCHAR(500) NOT NULL PRIMARY KEY,
+    fileparent VARCHAR(500) NULL,
+    isfile CHAR(1) NULL,
+    starred CHAR(1) NULL,
+    owner VARCHAR(255) NULL,
+    sharedcount INT NULL
+);
 
-create table groupmembers
-(
-	id int auto_increment
-		primary key,
-	groupId int null,
-	email varchar(200) null
-)
-;
+-- Creating table: groupmembers
+CREATE TABLE groupmembers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    groupId INT NULL,
+    email VARCHAR(200) NULL
+);
 
-create index groupmembers_groups_groupId_fk
-	on groupmembers (groupId)
-;
+CREATE INDEX groupmembers_groups_groupId_fk ON groupmembers (groupId);
+CREATE INDEX groupmembers_users_email_fk ON groupmembers (email);
 
-create index groupmembers_users_email_fk
-	on groupmembers (email)
-;
+-- Creating table: groups
+CREATE TABLE groups (
+    groupId INT AUTO_INCREMENT PRIMARY KEY,
+    groupname VARCHAR(200) NULL,
+    membercount INT NULL,
+    owner VARCHAR(200) NULL
+);
 
-create table groups
-(
-	groupId int auto_increment
-		primary key,
-	groupname varchar(200) null,
-	membercount int null,
-	owner varchar(200) null
-)
-;
+CREATE INDEX groups_users_email_fk ON groups (owner);
 
-create index groups_users_email_fk
-	on groups (owner)
-;
+-- Adding foreign key constraints to groupmembers
+ALTER TABLE groupmembers
+    ADD CONSTRAINT groupmembers_groups_groupId_fk FOREIGN KEY (groupId) REFERENCES groups (groupId);
 
-alter table groupmembers
-	add constraint groupmembers_groups_groupId_fk
-		foreign key (groupId) references groups (groupId)
-;
+-- Creating table: members
+CREATE TABLE members (
+    memberId INT AUTO_INCREMENT PRIMARY KEY,
+    firstname VARCHAR(200) NULL,
+    lastname VARCHAR(200) NULL,
+    email VARCHAR(200) NULL
+);
 
-create table members
-(
-	memberId int auto_increment
-		primary key,
-	firstname varchar(200) null,
-	lastname varchar(200) null,
-	email varchar(200) null
-)
-;
+-- Creating table: userfiles
+CREATE TABLE userfiles (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    filepath VARCHAR(500) NULL,
+    email VARCHAR(500) NULL,
+    CONSTRAINT userfiles_ibfk_1 FOREIGN KEY (filepath) REFERENCES files (filepath)
+);
 
-create table userfiles
-(
-	ID int auto_increment
-		primary key,
-	filepath varchar(500) null,
-	email varchar(500) null,
-	constraint userfiles_ibfk_1
-		foreign key (filepath) references files (filepath)
-)
-;
+CREATE INDEX email ON userfiles (email);
+CREATE INDEX filepath ON userfiles (filepath);
 
-create index email
-	on userfiles (email)
-;
+-- Creating table: userlog
+CREATE TABLE userlog (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    filename VARCHAR(255) NULL,
+    filepath VARCHAR(500) NULL,
+    isfile CHAR(1) NULL,
+    email VARCHAR(500) NULL,
+    action VARCHAR(100) NULL,
+    actiontime DATETIME NULL
+);
 
-create index filepath
-	on userfiles (filepath)
-;
+CREATE INDEX email ON userlog (email);
 
-create table userlog
-(
-	ID int auto_increment
-		primary key,
-	filename varchar(255) null,
-	filepath varchar(500) null,
-	isfile varchar(1) null,
-	email varchar(500) null,
-	action varchar(100) null,
-	actiontime varchar(100) null
-)
-;
+-- Creating table: users
+CREATE TABLE users (
+    firstname VARCHAR(255) NOT NULL,
+    lastname VARCHAR(255) NULL,
+    email VARCHAR(500) NOT NULL PRIMARY KEY,
+    password VARCHAR(255) NULL,
+    contact VARCHAR(255) NULL,
+    interests VARCHAR(255) NULL,
+    lastlogin DATETIME NULL
+);
 
-create index email
-	on userlog (email)
-;
+-- Adding foreign key constraints to groupmembers
+ALTER TABLE groupmembers
+    ADD CONSTRAINT groupmembers_users_email_fk FOREIGN KEY (email) REFERENCES users (email);
 
-create table users
-(
-	firstname varchar(255) not null,
-	lastname varchar(255) null,
-	email varchar(500) not null
-		primary key,
-	password varchar(255) null,
-	contact varchar(255) null,
-	interests varchar(255) null,
-	lastlogin varchar(255) null
-)
-;
+-- Adding foreign key constraints to groups
+ALTER TABLE groups
+    ADD CONSTRAINT groups_users_email_fk FOREIGN KEY (owner) REFERENCES users (email);
 
-alter table groupmembers
-	add constraint groupmembers_users_email_fk
-		foreign key (email) references users (email)
-;
+-- Adding foreign key constraints to userfiles
+ALTER TABLE userfiles
+    ADD CONSTRAINT userfiles_ibfk_2 FOREIGN KEY (email) REFERENCES users (email);
 
-alter table groups
-	add constraint groups_users_email_fk
-		foreign key (owner) references users (email)
-;
-
-alter table userfiles
-	add constraint userfiles_ibfk_2
-		foreign key (email) references users (email)
-;
-
-alter table userlog
-	add constraint userlog_ibfk_1
-		foreign key (email) references users (email)
-;
-
+-- Adding foreign key constraints to userlog
+ALTER TABLE userlog
+    ADD CONSTRAINT userlog_ibfk_1 FOREIGN KEY (email) REFERENCES users (email);
