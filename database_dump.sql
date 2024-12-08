@@ -24,18 +24,14 @@ CREATE INDEX groupmembers_groups_groupId_fk ON groupmembers (groupId);
 CREATE INDEX groupmembers_users_email_fk ON groupmembers (email);
 
 -- Creating table: groups
-CREATE TABLE groups (
+CREATE TABLE `groups` (
     groupId INT AUTO_INCREMENT PRIMARY KEY,
     groupname VARCHAR(200) NULL,
     membercount INT NULL,
     owner VARCHAR(200) NULL
 );
 
-CREATE INDEX groups_users_email_fk ON groups (owner);
-
--- Adding foreign key constraints to groupmembers
-ALTER TABLE groupmembers
-    ADD CONSTRAINT groupmembers_groups_groupId_fk FOREIGN KEY (groupId) REFERENCES groups (groupId);
+CREATE INDEX groups_users_email_fk ON `groups` (owner);
 
 -- Creating table: members
 CREATE TABLE members (
@@ -82,10 +78,10 @@ CREATE TABLE users (
 
 -- Adding foreign key constraints to groupmembers
 ALTER TABLE groupmembers
-    ADD CONSTRAINT groupmembers_users_email_fk FOREIGN KEY (email) REFERENCES users (email);
+    ADD CONSTRAINT groupmembers_groups_groupId_fk FOREIGN KEY (groupId) REFERENCES `groups` (groupId);
 
 -- Adding foreign key constraints to groups
-ALTER TABLE groups
+ALTER TABLE `groups`
     ADD CONSTRAINT groups_users_email_fk FOREIGN KEY (owner) REFERENCES users (email);
 
 -- Adding foreign key constraints to userfiles
